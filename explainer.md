@@ -1,19 +1,17 @@
 # **Async Clipboard: Raw Clipboard Access**
 
-**Authors:**
+**Author:**
 *   [huangdarwin@chromium.org](mailto:huangdarwin@chromium.org) 
 
 ## 
 **Table of Contents [if the explainer is longer than one printed page]**
 
-
 [You can generate a Table of Contents for markdown documents using a tool like [doctoc](https://github.com/thlorenz/doctoc).]
-
 
 ## 
 **Introduction**
 
-Web Applications would like to copy and paste arbitrary data types, for which native applications may have vulnerable encoders/decoders. Raw Clipboard Access is a low-level API solution to allow for copying and pasting of data of these arbitrary Clipboard types. This unlocks compatibility with native apps, by allowing the use of their non-web-standard formats such as TIFF (a large image type not standardized on the web), .docx (a proprietary document format), SVG (an image format without a secure Chrome encoder/decoder), etc. This also unlocks faster clipboard interactions, as re-encoding will not be required, allows for more custom types, and allows the user agent to avoid potential issues with re-encoding, like dropping metadata or changing image contents. The existing Async Clipboard API’s re-encoding is still encouraged for use cases requiring only generic types, and easier to use as custom encoders/decoders would not be necessary, but raw clipboard access allows web applications with more specific or sophisticated clipboard support needs to meet those needs.
+Web Applications would like to copy and paste arbitrary data types, for which native applications may have vulnerable encoders/decoders. Raw Clipboard Access is a low-level API solution to allow for copying and pasting of data of these arbitrary Clipboard types. This unlocks compatibility with native apps, by allowing use of their non-web-standard formats such as TIFF (a large image type not standardized on the web), .docx (a proprietary document format), SVG (an image format without a secure Chrome encoder/decoder), etc. This also unlocks faster clipboard interactions, as re-encoding will not be required, allows for more custom types, and allows the user agent to avoid potential issues with re-encoding, like dropping metadata or changing image contents. The existing Async Clipboard API’s re-encoding is still encouraged for use cases requiring only generic types, and easier to use as custom encoders/decoders would not be necessary, but raw clipboard access allows web applications with more specific or sophisticated clipboard support needs to meet those needs.
 
 ## 
 **Goals**
@@ -22,14 +20,14 @@ Web Applications would like to copy and paste arbitrary data types, for which na
     *   These types will not be sanitized by the browser.
     *   They must be placed on the operating system clipboard, to allow for communication between web and native apps.
     *   Potential use cases:
-        *   Copy/Paste of SVG images between [Figma](https://crbug.com/150835#c73) and Photoshop/GIMP.
-        *   Copy/Paste of documents/spreadsheets/presentations between Microsoft Office 365 / Google Docs and Microsoft Office / Open Office.
+         *   Copy/Paste of SVG images between [Figma](https://crbug.com/150835#c73) and Photoshop/GIMP.
+         *   Copy/Paste of documents/spreadsheets/presentations between Microsoft Office 365 / Google Docs and Microsoft Office / Open Office.
 *   Provide more fine-grained control over the clipboard, by allowing the web to:
     *   Skip decoding on write.
     *   Skip encoding on read.
     *   Control order of writing items to the clipboard.
 *   Build on existing Async Clipboard API, by leveraging existing:
-    *   structure, including ClipboardItem.
+    *   structure, like ClipboardItem.
     *   async nature, permissions model, and secure-context/active frame requirement of the API.
 *   Preserve security / privacy, as unsanitized data entering the operating system clipboard may be dangerous.
 
@@ -43,18 +41,18 @@ Web Applications would like to copy and paste arbitrary data types, for which na
 **Existing Async Clipboard API write**
 
 
-The existing [Async Clipboard API](https://w3c.github.io/clipboard-apis/#async-clipboard-api) already provides for copying or pasting multiple sanitized items to or from the clipboard. 
+The existing [Async Clipboard API](https://w3c.github.io/clipboard-apis/#async-clipboard-api) already provides for reading or writing multiple sanitized items from or to the clipboard. 
 
-Async Clipboard write call:
-```
+Existing Async Clipboard write call:
+```javascript
 const image = await fetch('myImage.png');
 const text = new Blob(['this is an image'], {type: 'text/plain'});
 const clipboard_item = new ClipboardItem({'text/plain' : text, 'image/png', image});
 await navigator.clipboard.write([clipboard_item]);
 ```
 
-Async Clipboard read call:
-```
+Existing Async Clipboard read call:
+```javascript
 const clipboardItems = await navigator.clipboard.read();
 const clipboardItem = clipboardItems[0];
 const text = await clipboardItem.getType('text/plain');
@@ -64,15 +62,15 @@ const image = await clipboardItem.getType('image/png');
 ## 
 **Raw Clipboard Access Write**
 
-Clipboard representations are added just as in the Async Clipboard API, but the ordering of representations now informs the order in which each representation is written. Additionally, different operating systems have different names and representations for each clipboard format, so it’s recommended that the web application check `navigator.clipboard.platform` before interacting with the raw clipboard, and encode or decode information appropriately. These considerations are considered in more detail in this [design document](https://docs.google.com/document/d/1XDOtTv8DtwTi4GaszwRFIJCOuzAEA4g9Tk0HrasQAdE/edit#heading=h.zgqx11yfddcf).
+Clipboard representations are added just as in the Async Clipboard API, but the ordering of representations now informs the order in which each representation is written. Additionally, different operating systems have different names and representations for each clipboard format, so it’s recommended that the web application check `navigator.clipboard.platform` before interacting with the raw clipboard, and encode or decode information appropriately.
 
 
 Example of this new write:
-```
+```javascript
 // Basic raw clipboard write example.
 const image = await fetch('myImage.png');
 const text = new Blob(['this is an image'], {type: 'text/plain'});
-if(!navigator.clipboard.platform === 'Win') { return; } /* The developer should ensure that items are appropriately encoded/decoded for the platform the web app is running on. */
+if(!navigator.clipboard.platform === 'Windows') { return; } /* The developer should ensure that items are appropriately encoded/decoded for the platform the web app is running on. */
 const clipboard_item = new ClipboardItem({
   'text/plain' : text, /* This first item in the dict will be written first */
   'image/png' : image   /* This second in the dict will be written second */
@@ -81,11 +79,11 @@ const clipboard_item = new ClipboardItem({
 );
 await navigator.clipboard.write([clipboard_item]);
 
-// More complete implementation example.
+// More complete, hypothetical implementation example.
 const image = await fetch('myImage.png');
 let clipboard_item;
 
-if(navigator.clipboard.platform === 'Win') {
+if(navigator.clipboard.platform === 'Windows') {
   const windows_image = await encode_jpeg_windows(image); // contains windows-only headers and carriage returns
   const windows_image_xr = await encode_jpeg_xr_windows(image); // new higher-fidelity image format
   clipboard_item = new ClipboardItem(
@@ -93,7 +91,7 @@ if(navigator.clipboard.platform === 'Win') {
     {raw : true}
   );
 }
-else if(navigator.clipboard.platform === 'Mac') {
+else if(navigator.clipboard.platform === 'MacOS') {
   // macos_image_xr encoder not available in this hypothetical example (maybe legal reasons)
   const macos_image = await encode_tiff_macos(image); // contains macos-only headers
   clipboard_item = new ClipboardItem({'image/jpg' : mac_image}, {raw : true});
@@ -112,18 +110,18 @@ await navigator.clipboard.write([clipboard_item]);
 
 
 Example of this new read:
-```
+```javascript
 // retrieves all items directly if raw:true, or all encoded items if raw:false 
 // (raw defaults to false)
 const clipboardItems = await navigator.clipboard.read({raw:true}); /* raw set here, and also sets raw property in ClipboardItems */
 
 const jpg = await clipboardItem.getType('image/jpg');
 const image;
-if (navigator.clipboard.platform === 'win'){
-  Image = convertForWindows(jpg);
+if (navigator.clipboard.platform === 'Windows'){
+  image = convertForWindows(jpg);
 }
-else if(navigator.clipboard.platform === 'Mac') {
-  Image = convertForWindows(jpg);
+else if(navigator.clipboard.platform === 'MacOS') {
+  image = convertForWindows(jpg);
 }
 
 if(jpg) // If raw jpg was available, use it with associated metadata
@@ -135,8 +133,7 @@ if(jpg) // If raw jpg was available, use it with associated metadata
 
 A new `navigator.clipboard.platform` API can determine the clipboard implementation currently in use, and will feature values like “Windows”, “MacOS”, “ChromeOS”, “Android”, “X11 Linux”, and “iOS”.
 
-The existing `navigator.platform` with regular expression matching could notably also fulfill this clipboard implementation detection, but the feature is known to be potentially [bloated and confusing](http://stackoverflow.com/q/19877924), so it was proposed to use a new `navigator.clipboard.platform`. Then again, adding yet another method to find a platform may be unnecessary, especially considering that this is a low-level API, and will likely be used in conjunction with Javascript libraries.
-
+The existing `navigator.platform` with regular expression matching could notably also fulfill this clipboard implementation detection, but the feature is known to be potentially [bloated and confusing](http://stackoverflow.com/q/19877924), so it was proposed to use a new `navigator.clipboard.platform`. Then again, adding yet another method to find a platform may be unnecessary, especially considering that this is a low-level API, and will likely be used in conjunction with Javascript libraries, which may perform this parsing.
 
 ## 
 **Design**
@@ -150,9 +147,9 @@ As Windows (through [RegisterClipboardFormatA](https://docs.microsoft.com/en-us/
 ### 
 **Clipboard Type Naming**
 
-Different operating systems have different limitations on the naming of their clipboard types. For example, Windows Clipboard Formats are [type insensitive](https://docs.microsoft.com/en-us/windows/desktop/api/Winuser/nf-winuser-registerclipboardformata#remarks), and MacOS uses [Uniform Type Identifiers](https://en.wikipedia.org/wiki/Uniform_Type_Identifier) to describe clipboard types, which means that these names may only contain “ASCII characters A-Z, a-z, 0-9, hyphen ("-"), and period ("."), and Unicode characters above U+007F” ([source](https://en.wikipedia.org/wiki/Uniform_Type_Identifier)). Raw Clipboard Access may also pass these types directly to the system clipboard, without checking appropriate type naming per platform, so the web application needs to be careful not to use inappropriate names. If multiple names resolve to the same platform clipboard name, then the last one will overwrite the first, or multiple reads of the same data may occur.
+Different operating systems have different limitations on the naming of their clipboard types. For example, Windows Clipboard Formats are [type insensitive](https://docs.microsoft.com/en-us/windows/desktop/api/Winuser/nf-winuser-registerclipboardformata#remarks), and MacOS uses [Uniform Type Identifiers](https://en.wikipedia.org/wiki/Uniform_Type_Identifier) to describe clipboard types, which means that these names may only contain “ASCII characters A-Z, a-z, 0-9, hyphen ("-"), and period ("."), and Unicode characters above U+007F” ([source](https://en.wikipedia.org/wiki/Uniform_Type_Identifier)). Raw Clipboard Access will pass these types directly to the system clipboard, without checking appropriate type naming per platform, so the web application needs to be careful not to use inappropriate names. If multiple names resolve to the same platform clipboard name, then the last one will overwrite the first, or multiple reads of the same data may occur.
 
-In [Windows](https://cs.chromium.org/chromium/src/ui/base/clipboard/clipboard_format_type_win.cc?l=78), [X11](https://cs.chromium.org/chromium/src/ui/gfx/x/x11_atom_cache.cc?l=266), [macOS](https://cs.chromium.org/chromium/src/ui/base/clipboard/clipboard_format_type_mac.mm?l=140), and [Android](https://cs.chromium.org/chromium/src/ui/base/clipboard/clipboard_format_type_android.cc?l=102), registering arbitrary types can be accomplished by passing the type in as a string (Note: [ChromeOS uses a bitmask](https://cs.chromium.org/chromium/src/ui/base/clipboard/clipboard_aura.cc?rcl=95d89952d1b7aa037fe1ee6bf5041a0944c086cf&l=35) to represent clipboard contents, and may need some clipboard implementation redesign to support (1) multiple types with (2) custom ordering). To allow for compatibility with other native applications, the browser can pass the type straight through, and expect the native application to read/write the same type. _Type lengths will be limited to 1024 (2<sup>10</sup>) characters_, and must not parse to an integer, to avoid potential attempts to attack via sending very large type strings, and to attempt to ensure some sort of descriptive naming, though this could certainly be expanded with time. 
+In [Windows](https://cs.chromium.org/chromium/src/ui/base/clipboard/clipboard_format_type_win.cc?l=78), [X11](https://cs.chromium.org/chromium/src/ui/gfx/x/x11_atom_cache.cc?l=266), [macOS](https://cs.chromium.org/chromium/src/ui/base/clipboard/clipboard_format_type_mac.mm?l=140), and [Android](https://cs.chromium.org/chromium/src/ui/base/clipboard/clipboard_format_type_android.cc?l=102), registering arbitrary types can be accomplished by passing the type in as a string. To allow for compatibility with other native applications, the browser can pass the type straight through, and expect the native application to read/write the same type. _Type lengths will be limited to 1024 (2<sup>10</sup>) characters_, and must not parse to an integer, to avoid potential attempts to attack via sending very large type strings, and to attempt to ensure some sort of descriptive naming, though this could certainly be expanded with time. 
 
 
 ## 
@@ -164,9 +161,9 @@ Chrome could alternatively pass a Clipboard type through to the operating system
 ## 
 **Alternative: Use a new array type instead of ClipboardItem**
 
-Although ES2015 [preserves](https://www.stefanjudis.com/today-i-learned/property-order-is-predictable-in-javascript-objects-since-es2015/#2-strings-that-are-no-integers-) object property insertion order for string properties, this is not true of strings that parse to integers. Therefore, continuing to use ClipboardItem with the bracket notation necessitates excluding any clipboard type that parses directly to an integer.
+Although ES2015 [preserves](https://www.stefanjudis.com/today-i-learned/property-order-is-predictable-in-javascript-objects-since-es2015/#2-strings-that-are-no-integers-) object property insertion order for string properties, this is not true of strings that parse to integers. Therefore, continuing to use `ClipboardItem` with the bracket notation necessitates excluding any clipboard type that parses directly to an integer.
 
-Arrays clearly specify ordering regardless of the data in the array, and could more explicitly express the ordering of Clipboard Representations written to the clipboard. An array of pairs (2-object arrays) could very explicitly specify the (1) order of clipboard items, of (2) string key types and value blob data. Raw Clipboard Access could therefore use a new RawClipboardItem type, with array pairs, to specify ordering of writing to the system clipboard, instead of using ClipboardItem. This also means that integer keys could be supported.
+Arrays clearly specify ordering regardless of the data in the array, and could more explicitly express the ordering of Clipboard Representations written to the clipboard. An array of pairs (2-object arrays) could very explicitly specify the (1) order of clipboard items, of (2) string key types and value blob data. Raw Clipboard Access could therefore use a new `RawClipboardItem` type, with array pairs, to specify ordering of writing to the system clipboard, instead of using `ClipboardItem`. This also means that integer keys could be supported.
 
 This was decided against to simplify and minimize the API surface, by avoiding creating yet another Clipboard-specific object, which would only be used for Raw Clipboard. Additionally, no clipboard types supported by Windows and MacOS should parse directly to an integer anyways. Therefore, the potential use case is extremely limited, and would dramatically increase the complexity with minimal gain.
 
@@ -186,8 +183,6 @@ No public signals from implementers.
 
 Many thanks for the valuable feedback and advice from:
 
-
-
 *   [Design Doc](https://tinyurl.com/raw-clipboard-access-design) reviewers:
     *   [dcheng@chromium.org](mailto:dcheng@chromium.org)
     *   [garykac@chromium.org](mailto:garykac@chromium.org) 
@@ -197,3 +192,4 @@ Many thanks for the valuable feedback and advice from:
     *   [reillyg@chromium.org](mailto:reillyg@chromium.org)
 *   Reference Documents:
     *   [W3C explainer template](https://github.com/w3ctag/w3ctag.github.io/blob/master/explainers.md#explainer-template)
+    *   [Design Document](https://tinyurl.com/raw-clipboard-access-design)
