@@ -59,12 +59,15 @@ Example of this new write:
 // Basic raw clipboard write example.
 const image = await fetch('myImage.png');
 const text = new Blob(['this is an image'], {type: 'text/plain'});
-if(!navigator.clipboard.platform === 'Windows') { return; } /* The developer should ensure that items are appropriately encoded/decoded for the platform the web app is running on. */
+// The developer should ensure that items are appropriately encoded/decoded 
+// for the platform the web app is running on.
+if(!navigator.clipboard.platform === 'Windows') { return; }
 const clipboard_item = new ClipboardItem({
-  'text/plain' : text, /* This first item in the dict will be written first */
-  'image/png' : image   /* This second in the dict will be written second */
+  'text/plain' : text, /* This first item in the dict will be written first. */
+  'image/png' : image   /* This second in the dict will be written second. */
 }, 
-{raw : true} /* This is an optional argument, which defaults to false. The entire write / ClipboardItem must be either re-encoded or raw */
+{raw : true} // This is an optional argument, which defaults to false. 
+             // The entire write / ClipboardItem must be either re-encoded or raw.
 );
 await navigator.clipboard.write([clipboard_item]);
 
@@ -73,21 +76,22 @@ const image = await fetch('myImage.png');
 let clipboard_item;
 
 if(navigator.clipboard.platform === 'Windows') {
-  const windows_image = await encode_jpeg_windows(image); // contains windows-only headers and carriage returns
-  const windows_image_xr = await encode_jpeg_xr_windows(image); // new higher-fidelity image format
+  const windows_image = await encode_jpeg_windows(image); // contains windows-only headers and carriage returns.
+  const windows_image_xr = await encode_jpeg_xr_windows(image); // new higher-fidelity image format.
   clipboard_item = new ClipboardItem(
-    {'image/jpg-xr' : windows_image_xr, 'image/jpg-xr' : windows_image_xr},
+    {'image/jpg-xr' : windows_image_xr, 'image/jpg' : windows_image},
     {raw : true}
   );
 }
 else if(navigator.clipboard.platform === 'MacOS') {
-  // macos_image_xr encoder not available in this hypothetical example (maybe legal reasons)
-  const macos_image = await encode_tiff_macos(image); // contains macos-only headers
-  clipboard_item = new ClipboardItem({'image/jpg' : mac_image}, {raw : true});
+  // macos_image_xr encoder not available in this hypothetical example (maybe legal reasons).
+  const macos_image = await encode_tiff_macos(image); // contains macos-only headers.
+  clipboard_item = new ClipboardItem({'image/tiff' : macos_image}, {raw : true});
 }
 else {
-  // No x11 support in this hypothetical example (maybe this application was ported from an application with no available x11 encoder)
-  clipboard_item = new ClipboardItem({'image/png' : image});
+  // No x11 support in this hypothetical example .
+  // (maybe this application was ported from an application with no available x11 encoder).
+  clipboard_item = new ClipboardItem({'image/png' : image}, {raw : false});
 }
 await navigator.clipboard.write([clipboard_item]);
 ```
@@ -100,20 +104,22 @@ await navigator.clipboard.write([clipboard_item]);
 Example of this new read:
 ```javascript
 // retrieves all items directly if raw:true, or all encoded items if raw:false 
-// (raw defaults to false)
-const clipboardItems = await navigator.clipboard.read({raw:true}); /* raw set here, and also sets raw property in ClipboardItems */
+// (raw defaults to false).
+// raw set here, and also sets raw property in ClipboardItems.
+const clipboardItems = await navigator.clipboard.read({raw:true});
+const clipboardItem = clipboardItems[0];
 
 const jpg = await clipboardItem.getType('image/jpg');
-const image;
+let image;
 if (navigator.clipboard.platform === 'Windows'){
   image = convertForWindows(jpg);
 }
 else if(navigator.clipboard.platform === 'MacOS') {
-  image = convertForWindows(jpg);
+  image = convertForMac(jpg);
 }
 
-if(jpg) // If raw jpg was available, use it with associated metadata
-  draw_jpg(jpg);
+if(image) // If image was successfully converted, draw it.
+  draw_jpg(image);
 ```
 
 ## navigator.clipboard.platform
