@@ -57,11 +57,12 @@ Clipboard representations are added just as in the Async Clipboard API, but the 
 Example of this new write:
 ```javascript
 // Basic raw clipboard write example.
-const image = await fetch('myImage.png');
+const imageResponse = await fetch('myImage.png');
+const image = await imageResponse.blob();
 const text = new Blob(['this is an image'], {type: 'text/plain'});
 // The developer should ensure that items are appropriately encoded/decoded 
 // for the platform the web app is running on.
-if(!navigator.clipboard.platform === 'Windows') { return; }
+if(navigator.clipboard.platform !== 'Windows') { return; }
 const clipboard_item = new ClipboardItem({
   'text/plain' : text, /* This first item in the dict will be written first. */
   'image/png' : image   /* This second in the dict will be written second. */
@@ -72,7 +73,8 @@ const clipboard_item = new ClipboardItem({
 await navigator.clipboard.write([clipboard_item]);
 
 // More complete, hypothetical implementation example.
-const image = await fetch('myImage.png');
+const imageResponse = await fetch('myImage.png');
+const image = await imageResponse.blob();
 let clipboard_item;
 
 if(navigator.clipboard.platform === 'Windows') {
