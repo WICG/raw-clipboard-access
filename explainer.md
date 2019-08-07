@@ -78,8 +78,10 @@ const image = await imageResponse.blob();
 let clipboard_item;
 
 if(navigator.clipboard.platform === 'Windows') {
-  const windows_image = await encode_jpeg_windows(image); // contains windows-only headers and carriage returns.
-  const windows_image_xr = await encode_jpeg_xr_windows(image); // new higher-fidelity image format.
+  // contains windows-only headers and carriage returns.
+  const windows_image = await encode_jpeg_windows(image);
+  // new higher-fidelity image format.
+  const windows_image_xr = await encode_jpeg_xr_windows(image);
   clipboard_item = new ClipboardItem(
     {'image/jpg-xr' : windows_image_xr, 'image/jpg' : windows_image},
     {raw : true}
