@@ -93,7 +93,7 @@ else if(navigator.clipboard.platform === 'MacOS') {
   clipboard_item = new ClipboardItem({'image/tiff' : macos_image}, {raw : true});
 }
 else {
-  // No x11 support in this hypothetical example .
+  // No x11 support in this hypothetical example.
   // (maybe this application was ported from an application with no available x11 encoder).
   clipboard_item = new ClipboardItem({'image/png' : image}, {raw : false});
 }
