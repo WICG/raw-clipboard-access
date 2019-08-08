@@ -5,7 +5,7 @@
 
 ## Introduction
 
-Powerful web applications would like to exchange data with native applications via the OS clipboard (copy-paste). The existing Web Platform has a high-level API that supports the most popular standardized data types (text, image, rich text) across all platforms. However, this API does not scale to the long tail of specialized formats. In particular, non-web-standard formats like TIFF (a large image format), proprietary formats like .docx (a document format), and types without secure open source transcoders like SVG, are not supported by the current Web Platform. 
+Powerful web applications would like to exchange data with native applications via the OS clipboard (copy-paste). The existing Web Platform has a high-level API that supports the most popular standardized data types (text, image, rich text) across all platforms. However, this API does not scale to the long tail of specialized formats. In particular, non-web-standard formats like TIFF (a large image format), and proprietary formats like .docx (a document format), are not supported by the current Web Platform. 
 
 Raw Clipboard Access aims to provide a low-level API solution to this problem, by implementing copying and pasting of data with any arbitrary Clipboard type, without encoding and decoding.
 
