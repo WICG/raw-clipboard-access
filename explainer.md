@@ -172,6 +172,10 @@ Arrays clearly specify ordering regardless of the data in the array, and could m
 
 This was decided against to simplify and minimize the API surface, by avoiding creating yet another Clipboard-specific object, which would only be used for Raw Clipboard. Additionally, no clipboard types supported by Windows and MacOS should parse directly to an integer anyways. Therefore, the potential use case is extremely limited, and would dramatically increase the complexity with minimal gain.
 
+## Permissions
+
+Permissions is still in active discussion. We are discussing whether to do a raw-clipboard-{read,write} model, or some sort of unified permission.
+
 ## Stakeholder Feedback / Opposition
 
 Stakeholders like Figma are in support of, and have publicly [requested](https://crbug.com/150835#c73) this feature, to attain compatibility with native applications and avoid decoding. 
