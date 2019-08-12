@@ -180,14 +180,13 @@ No public signals from implementers.
 
 ## References & acknowledgements
 
-[Unless you have a specific reason not to, these should be in alphabetical order.]
-
 Many thanks for the valuable feedback and advice from:
 
 *   [Design Doc](https://tinyurl.com/raw-clipboard-access-design) reviewers:
     *   [dcheng@chromium.org](mailto:dcheng@chromium.org)
     *   [garykac@chromium.org](mailto:garykac@chromium.org) 
     *   [jsbell@chromium.org](mailto:jsbell@chromium.org)
+    *   [mek@chromium.org](mailto:mek@chromium.org)
     *   [palmer@chromium.org](mailto:palmer@chromium.org)
     *   [pwnall@chromium.org](mailto:pwnall@chromium.org)
     *   [reillyg@chromium.org](mailto:reillyg@chromium.org)
