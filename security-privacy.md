@@ -96,8 +96,15 @@ No.
 
 ### 2.17. What should this questionnaire have asked?
 
-N/A
+#### 2.17.1. How might this specification compromise a user's system? ([issue](https://github.com/dway123/raw-clipboard-access/issues/3))
 
+Exposing raw clipboard content to the open web platform poses serious security issues, in that this introduces a large surface of unsanitized content, previously not available to the open web.
+
+There are known security vulnerabilities in native applications' decoders. These decoders are often run when contents are pasted into such applications, and these vulnerabilities may allow for remote code execution with all the priviledges granted to the native application.
+
+Example: A malicious web application may write an image with a payload designed to take advantage of insecure decoders. As raw clipboard access does not specify sanitization of clipboard contents prior to write, this will be written exactly as delivered by the web application. This malicious image might then be pasted into an application with an insecure decoder. When the user pastes into this application, the image will be decoded, and remote code execution outside of the sandboxed browser may occur. 
+
+A permission prompt is in place for writes to ensure that the user takes care when allowing raw clipboard access. User agents should make the risks of granting the permission clear to users.
 
 ## 3. Threat Models
 
