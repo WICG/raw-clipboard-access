@@ -152,12 +152,15 @@ if (navigator.clipboard.platform === 'Windows') {
 
 As Windows (through [`RegisterClipboardFormatA`](https://docs.microsoft.com/en-us/windows/desktop/api/winuser/nf-winuser-registerclipboardformata)) and X11 (through Atoms) both limit the amount of clipboard formats they may register, browsers must take care to avoid registering too many types. Windows has the smallest limit, at about 2<sup>14</sup> [unique clipboard types](https://docs.microsoft.com/en-us/windows/desktop/api/winuser/nf-winuser-registerclipboardformata) supported. Therefore, I propose a limit of 32 (2<sup>5</sup>) types per origin, and a limit of 4096 (2<sup>12</sup>) total types registered through the Chrome Clipboard (including raw clipboard access). 32 was the number chosen, because this should be enough for a hypothetical document editor, like Office 365, Open Office, or Docs, to write all types that they currently support (Slides, Sheets, Documents, Drawings, Formulae, etc on all platforms, plus other generic types). This should allow for 128 (2<sup>7</sup>) unique origins to register the maximum amount of clipboard types available, or more origins to register less than the maximum amount of clipboard types available. There are ~1800 unique MIME types [registered](https://www.iana.org/assignments/media-types/media-types.xhtml), so while this wouldn’t come close to allowing each web application to register every available registered MIME type, it should be more than enough for most use cases. If future use suggests that more MIME types should be exposed to each origin, it should be much easier to expand the amount of exposed MIME types without breaking existing use cases, than it would be to reduce them if there were too many exposed.
 
-
 ### Clipboard Type Naming
 
 Different operating systems have different limitations on the naming of their clipboard types. For example, Windows Clipboard Formats are [type insensitive](https://docs.microsoft.com/en-us/windows/desktop/api/Winuser/nf-winuser-registerclipboardformata#remarks), and MacOS uses [Uniform Type Identifiers](https://en.wikipedia.org/wiki/Uniform_Type_Identifier) to describe clipboard types, which means that these names may only contain “ASCII characters A-Z, a-z, 0-9, hyphen ("-"), and period ("."), and Unicode characters above U+007F” ([source](https://en.wikipedia.org/wiki/Uniform_Type_Identifier)). Raw Clipboard Access will pass these types directly to the system clipboard, without checking appropriate type naming per platform, so the web application needs to be careful not to use inappropriate names. If multiple names resolve to the same platform clipboard name, then the last one will overwrite the first, or multiple reads of the same data may occur.
 
 In [Windows](https://cs.chromium.org/chromium/src/ui/base/clipboard/clipboard_format_type_win.cc?l=78), [X11](https://cs.chromium.org/chromium/src/ui/gfx/x/x11_atom_cache.cc?l=266), [macOS](https://cs.chromium.org/chromium/src/ui/base/clipboard/clipboard_format_type_mac.mm?l=140), and [Android](https://cs.chromium.org/chromium/src/ui/base/clipboard/clipboard_format_type_android.cc?l=102), registering arbitrary types can be accomplished by passing the type in as a string. To allow for compatibility with other native applications, the browser can pass the type straight through, and expect the native application to read/write the same type. _Type lengths will be limited to 1024 (2<sup>10</sup>) characters_, and must not parse to an integer, to avoid potential attempts to attack via sending very large type strings, and to attempt to ensure some sort of descriptive naming, though this could certainly be expanded with time. 
+
+### Protections
+
+As with the Async Clipboard API, which Raw Clipboard Access builds upon, Raw Clipboard Access will require secure context, active frame, and an active user permission prompt. In addition, user agents should take care to limit the amount of allowed types per origin, to avoid concerns with Windows and X11 format registration limits.
 
 ### Alternative: Consistent MIME types without re-encoding
 
@@ -174,13 +177,13 @@ This was decided against to simplify and minimize the API surface, by avoiding c
 
 ## Permissions
 
-Permissions is still in active discussion. We are discussing whether to do a raw-clipboard-{read,write} model, or some sort of unified permission.
+The [Clipboard spec](https://w3c.github.io/clipboard-apis/#clipboard-permissions)'s `ClipboardPermissionDescriptor` will be extended to add an `allowWithoutSanitization` field. Like with `allowWithoutGesture`, `allowWithoutSanitization === true` will be stronger than `allowWithoutSanitization === false`.
 
 ## Stakeholder Feedback / Opposition
 
 Stakeholders like Figma are in support of, and have publicly [requested](https://crbug.com/150835#c73) this feature, to attain compatibility with native applications and avoid decoding. 
 
-No public signals from implementers.
+WebKit is [not in support of](https://github.com/dway123/raw-clipboard-access/issues/3#issuecomment-521016571) this feature.
 
 ## References & acknowledgements
 
