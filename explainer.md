@@ -20,7 +20,7 @@ The existing Async Clipboard API’s re-encoding is still encouraged for use cas
 
 *   Allow copy/paste between web and native apps.
     *   These types will not be sanitized by the browser.
-    *   They must be placed on the operating system clipboard, to allow for communication between web and native apps.
+    *   They must be placed on the operating system clipboard (not pickled), to allow for communication between web and native apps.
 *   Provide more fine-grained control over the clipboard, by allowing the web to:
     *   Skip decoding on write.
     *   Skip encoding on read.
@@ -108,7 +108,6 @@ await navigator.clipboard.write([clipboard_item]);
 ## Raw Clipboard Access Read
 
 `Navigator.clipboard.read` gains an optional `raw` parameter as well, to inform whether the ClipboardItem returned should contain raw or encoded data and types. Once again, `navigator.clipboard.platform` can be used to determine the platform, and inform the format, in which the data may be encoded.
-
 
 Example of this new read:
 ```javascript
