@@ -58,7 +58,7 @@ const image = await clipboardItem.getType('image/png');
 
 ## Raw Clipboard Access Write
 
-Clipboard representations are added just as in the Async Clipboard API, but the ordering of representations now informs the order in which each representation is written. Additionally, different operating systems have different names and representations for each clipboard format, so it’s recommended that the web application check `navigator.clipboard.platform` before interacting with the raw clipboard, and encode or decode information appropriately.
+Clipboard representations are added just as in the Async Clipboard API, but the ordering of representations now informs the order in which each representation is written. It is recommended to write platform-independent code if possible, but different operating systems may have different names and representations for each clipboard format. Therefore, if a web application is reading or writing such platform-dependent formats, it's recommended that they check `navigator.clipboard.platform` before interacting with the raw clipboard, and encode or decode information appropriately.
 
 
 Example of this new write:
@@ -66,13 +66,13 @@ Example of this new write:
 // Basic raw clipboard write example.
 const imageResponse = await fetch('myImage.png');
 const image = await imageResponse.blob();
+const proprietaryFormat = await proprietaryEncode(image);
 const text = new Blob(['this is an image'], {type: 'text/plain'});
-// The developer should ensure that items are appropriately encoded/decoded 
-// for the platform the web app is running on.
-if (navigator.clipboard.platform !== 'Windows') { return; }
+
 const clipboard_item = new ClipboardItem({
-  'text/plain': text, /* This first item in the dict will be written first. */
-  'image/png': image   /* This second in the dict will be written second. */
+  'image/png': image, /* This first item in the dict will be written first. */
+  'text/plain': text, /* This second in the dict will be written second. */
+  'my/format': proprietaryFormat /* This format may not be supported without Raw Clipboard Access */
 }, 
 {raw: true} // This is an optional argument, which defaults to false. 
             // The entire write / ClipboardItem must be either re-encoded or raw.
@@ -84,6 +84,8 @@ const imageResponse = await fetch('myImage.png');
 const image = await imageResponse.blob();
 let clipboard_item;
 
+// The developer should ensure that items are appropriately encoded/decoded 
+// for the platform the web app is running on.
 if(navigator.clipboard.platform === 'Windows') {
   // contains windows-only headers and carriage returns.
   const windows_image = await encode_jpeg_windows(image);
@@ -98,8 +100,10 @@ if(navigator.clipboard.platform === 'Windows') {
   const macos_image = await encode_tiff_macos(image); // contains macos-only headers.
   clipboard_item = new ClipboardItem({'image/tiff': macos_image}, {raw: true});
 } else {
-  // No x11 support in this hypothetical example.
-  // (maybe this application was ported from an application with no available x11 encoder).
+  // In this hypothetical example, X11, Android, iOS, ChromeOS, and other platforms 
+  // default to only write 'image/png', perhaps due to there being no specialized 
+  // compatability needs that led to the use of raw clipboard access in 
+  // Windows and MacOS.
   clipboard_item = new ClipboardItem({'image/png': image}, {raw: false});
 }
 await navigator.clipboard.write([clipboard_item]);
@@ -107,7 +111,7 @@ await navigator.clipboard.write([clipboard_item]);
 
 ## Raw Clipboard Access Read
 
-`Navigator.clipboard.read` gains an optional `raw` parameter as well, to inform whether the ClipboardItem returned should contain raw or encoded data and types. Once again, `navigator.clipboard.platform` can be used to determine the platform, and inform the format, in which the data may be encoded.
+`Navigator.clipboard.read` gains an optional `raw` parameter as well, to inform whether the ClipboardItem returned should contain raw or encoded data and types. Once again, `navigator.clipboard.platform` can be used to determine the platform, and inform the format, in which the data may be encoded, but it is recommended to avoid platform-dependent code if possible.
 
 Example of this new read:
 ```javascript
@@ -123,6 +127,11 @@ if (navigator.clipboard.platform === 'Windows') {
   image = convertForWindows(jpg);
 } else if (navigator.clipboard.platform === 'MacOS') {
   image = convertForMac(jpg);
+} else {
+  // This jpg has a platform-independent decoder, but the app may wish to 
+  // preserve certain hypothetical non-standardized, platform-dependent
+  // data on Windows and MacOS for compatability with certain applications.
+  image = generalConvert(jpg);
 }
 
 if(image) // If image was successfully converted, draw it.
@@ -144,6 +153,8 @@ if (navigator.clipboard.platform === 'Windows') {
 }
 ...
 ```
+
+Please note that `navigator.clipboard.platform` should only be used if it is absolutely necessary for the web application to exercise platform-dependent code, as it will significantly complicate web application code, and may reduce future compatability.
 
 ## Design
 
