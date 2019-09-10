@@ -33,8 +33,8 @@ The existing Async Clipboard API’s re-encoding is still encouraged for use cas
 
 ## Non-goals
 
-*   Modify design of original Async Clipboard API, where not relevant to raw clipboard access.
-*   Anything else not related to Async Clipboard API
+*   Modify design of original Async Clipboard API, where not relevant to raw clipboard access. This includes modifying the permission model of the Async Clipboard API, such as its non-requirement of user gesture or persistence. While these may be valid concerns, they are out of scope of this explainer.
+*   Anything else not related to Async Clipboard API.
 
 ## Existing Async Clipboard API write
 
