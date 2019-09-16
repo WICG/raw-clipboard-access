@@ -191,7 +191,7 @@ The [Clipboard spec](https://w3c.github.io/clipboard-apis/#clipboard-permissions
 
 ## Stakeholder Feedback / Opposition
 
-Stakeholders like Figma are in support of, and have publicly [requested](https://crbug.com/150835#c73) this feature, to attain compatibility with native applications and avoid decoding. 
+Stakeholders like Figma and SketchUp are in public support of this feature, and Figma has publicly [requested](https://crbug.com/150835#c73) this, to help attain compatibility and parity with native applications. 
 
 WebKit is [not in support of](https://github.com/dway123/raw-clipboard-access/issues/3#issuecomment-521016571) this feature.
 
