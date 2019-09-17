@@ -1,2 +1,2 @@
-# raw-clipboard-access-explainer
-An explainer for the Raw Clipboard Access feature
+# raw-clipboard-access
+An explainer and questionairre for the Raw Clipboard Access feature.
