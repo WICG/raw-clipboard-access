@@ -10,9 +10,9 @@ Powerful web applications would like to exchange data with native applications v
 Raw Clipboard Access aims to provide a low-level API solution to this problem, by implementing copying and pasting of data with any arbitrary Clipboard type, without encoding and decoding.
 
 This could be used by:
-* Online editors like Google Docs or Microsoft Office 365, copy/paste OpenOffice or Microsoft Word documents/spreadsheets/presentations.
-* [Figma](https://crbug.com/150835#c73), to copy/paste PhotoShop/GIMP, GIFs, or RAW images.
-* Web Apps supporting “niche” types, like LaTeX, .ogg, etc.
+* Online editors like Google Docs or Microsoft Office 365, copy/paste OpenOffice or Microsoft Word documents/spreadsheets/presentations (proprietary formats).
+* [Figma](https://crbug.com/150835#c73), to copy/paste PhotoShop/GIMP, GIFs, or RAW images, or already-supported formats with not-supported metadata (long tail of metadata).
+* Web Apps supporting “niche” types, like LaTeX, .ogg, etc (long tail of formats).
 
 The existing Async Clipboard API’s re-encoding is still encouraged for use cases requiring only generic types, and easier to use as custom encoders/decoders would not be necessary, but raw clipboard access allows web applications with more specific or sophisticated clipboard support needs to meet those needs.
 
@@ -21,10 +21,10 @@ The existing Async Clipboard API’s re-encoding is still encouraged for use cas
 *   Allow copy/paste between web and native apps.
     *   These types will not be sanitized by the browser.
     *   They must be placed on the operating system clipboard (not pickled), to allow for communication between web and native apps.
-*   Provide more fine-grained control over the clipboard, by allowing the web to:
-    *   Skip decoding on write.
-    *   Skip encoding on read.
-    *   Control order of writing items to the clipboard.
+*   Provide fine-grained control over the clipboard, by allowing the web to:
+    *   Skip decoding on write by user agent.
+    *   Skip encoding on read by user agent.
+    *   Control order of writing formats to the clipboard.
     *   Create custom clipboard formats.
 *   Build on existing Async Clipboard API, by leveraging existing:
     *   structure, like ClipboardItem.
@@ -184,6 +184,10 @@ Although ES2015 [preserves](https://www.stefanjudis.com/today-i-learned/property
 Arrays clearly specify ordering regardless of the data in the array, and could more explicitly express the ordering of Clipboard Representations written to the clipboard. An array of pairs (2-object arrays) could very explicitly specify the (1) order of clipboard items, of (2) string key types and value blob data. Raw Clipboard Access could therefore use a new `RawClipboardItem` type, with array pairs, to specify ordering of writing to the system clipboard, instead of using `ClipboardItem`. This also means that integer keys could be supported.
 
 This was decided against to simplify and minimize the API surface, by avoiding creating yet another Clipboard-specific object, which would only be used for Raw Clipboard. Additionally, no clipboard types supported by Windows and MacOS should parse directly to an integer anyways. Therefore, the potential use case is extremely limited, and would dramatically increase the complexity with minimal gain.
+
+### Alternative: Restrict raw clipboard access to "partner" native/web applications
+
+After some discussion with Webkit, a proposed alternative was to allow only "partner" sites, for example native and web applications with the same source origin, to have raw clipboard access. This was decided against for this explainer as it would break the compatibility requirements for Raw Clipboard Access, but may be a viable reduced implementation for user agents concerned about the full described API that may satisfy some common use-cases.
 
 ## Permissions
 
