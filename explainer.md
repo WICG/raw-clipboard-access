@@ -36,7 +36,7 @@ The existing Async Clipboard API’s re-encoding is still encouraged for use cas
 *   Modify design of original Async Clipboard API, where not relevant to raw clipboard access. This includes modifying the permission model of the Async Clipboard API, such as its non-requirement of user gesture or persistence. While these may be valid concerns, they are out of scope of this explainer.
 *   Anything else not related to Async Clipboard API.
 
-## Existing Async Clipboard API write
+## Existing Async Clipboard API read and write
 
 The existing [Async Clipboard API](https://w3c.github.io/clipboard-apis/#async-clipboard-api) already provides for reading or writing multiple sanitized items from or to the clipboard. 
 
@@ -120,6 +120,9 @@ Example of this new read:
 // raw set here, and also sets raw property in ClipboardItems.
 const clipboardItems = await navigator.clipboard.read({raw: true});
 const clipboardItem = clipboardItems[0];
+if(clipboardItem.types.length != 1 || clipboardItem.types[0] != 'image/jpg') {
+  return;
+}
 
 const jpg = await clipboardItem.getType('image/jpg');
 let image;
