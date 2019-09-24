@@ -175,9 +175,16 @@ In [Windows](https://cs.chromium.org/chromium/src/ui/base/clipboard/clipboard_fo
 
 As with the Async Clipboard API, which Raw Clipboard Access builds upon, Raw Clipboard Access will require secure context, active frame, and an active user permission prompt. In addition, user agents should take care to limit the amount of allowed types per origin, to avoid concerns with Windows and X11 format registration limits.
 
-### Alternative: Consistent MIME types without re-encoding
+### Alternative: Consistent MIME types without re-encoding / Pickling
+The user agent could alternatively pass a Clipboard type through to the operating system, with a requirement that the Clipboard type be a MIME type with a consistent representation across platforms. As no operating system should have built in Clipboard types in MIME format, native and web applications may converge to using these formats.
 
-The user agent could alternatively pass a Clipboard type through to the operating system, with a requirement that the Clipboard type be a standardized MIME type, with a consistent representation across platforms. As no operating system should have built in Clipboard types in MIME format, native applications will have to send their data using a MIME type format to access this on the web, or vice versa. This has the advantage of not requiring a `navigator.clipboard.platform` API. It also requires native applications to “opt in” to using these types, as they will have to potentially add support for these clipboard formats. Similarly, as is done for many similar features, web applications will also have to “opt in” to using these previously unavailable MIME clipboard types. This should provide for an organic growth of the web platform’s supported MIME types; as [Blob](https://developer.mozilla.org/en-US/docs/Web/API/Blob)s don’t mind which MIME type they contain (for most types), neither will the clipboard. It should also bypass fingerprinting concerns, as the type would be represented in the same manner- both in name and binary representation- across operating systems. However, this approach ultimately wouldn’t improve the web platform as much, because web applications would have to wait for native applications to update and add support for MIME types on the clipboard. As some native applications have very slow update cycles, and existing native applications are often not updated, this would cause for adoption of this API to be unnecessarily slow and expensive. Additionally, some native applications may have no desire to integrate with web applications, and may therefore choose to omit clipboard MIME type support for this purpose.
+* (+) This requires native applications to explicitly “opt in” to using these types, as they will have to potentially add support for these clipboard formats. Therefore, legacy formats not intended for the web - leaking PII or containing decoder vulnerabilities - will not be exposed.
+* (+) This does not requiring platform-dependent branching/code in the web, and therefore also avoids needing navigator.clipboard.platform.
+* (-) This approach ultimately wouldn’t improve the web platform, because web applications would have to wait for native applications to update and add support for MIME types on the clipboard. As some native applications have very slow update cycles (often >1 year), and existing native applications are often not updated, this would cause for adoption of this API to be unnecessarily slow and expensive. 
+* (-) Some native applications may have no desire to update in order to integrate with web applications, and may therefore choose to omit clipboard MIME type support for this purpose.
+* (-) This provides minimal new capability for the web platform, as opt-in information passing is already possible by embedding such data in text/plain, or the unstandardized pickling format that Chrome and Webkit already expose (which is already done in the wild).
+
+This was not chosen as it does not meet the interoperability requirements desired for raw clipboard access.
 
 
 ### Alternative: Use a new array type instead of ClipboardItem
@@ -191,6 +198,10 @@ This was decided against to simplify and minimize the API surface, by avoiding c
 ### Alternative: Restrict raw clipboard access to "partner" native/web applications
 
 After some discussion with Webkit, a proposed alternative was to allow only "partner" sites, for example native and web applications with the same source origin, to have raw clipboard access. This was decided against for this explainer as it would break the compatibility requirements for Raw Clipboard Access, but may be a viable reduced implementation for user agents concerned about the full described API that may satisfy some common use-cases.
+
+### Minimal implementation for user agents
+A user agent that decides not to implement all of Raw Clipboard Access for various reasons should consider at least rejecting immediately on any call with `{raw : true}`. This allows web applications to gracefully detect failure, as they should already do in case of rejected permission or failure to encode/decode, and fall back to existing sanitized clipboard APIs. Rejecting immediately is important because otherwise web applications may do user agent detection, using the raw clipboard access for user agents that implement it, and using a fallback API for user agents that don’t. This means that if the user agent were to later implement such a feature, they would either need to either ask the web application to remove/update user agent detection, have to live with the feature not working on sites that implemented user agent detection, or (even worse) have to masquerade as a browser that previously implemented such a feature. 
+
 
 ## Permissions
 
