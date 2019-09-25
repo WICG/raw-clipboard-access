@@ -11,7 +11,7 @@ Raw Clipboard Access aims to provide a low-level API solution to this problem, b
 
 This could be used by:
 * Online editors like Google Docs or Microsoft Office 365, copy/paste OpenOffice or Microsoft Word documents/spreadsheets/presentations (proprietary formats).
-* [Figma](https://crbug.com/150835#c73), to copy/paste PhotoShop/GIMP, GIFs, or RAW images, or already-supported formats with not-supported metadata (long tail of metadata).
+* [Figma](https://crbug.com/150835#c73) or Photopea, to copy/paste PhotoShop/GIMP, GIFs, or RAW images, or already-supported formats with not-supported metadata (long tail of metadata).
 * Web Apps supporting “niche” types, like LaTeX, .ogg, etc (long tail of formats).
 
 The existing Async Clipboard API’s re-encoding is still encouraged for use cases requiring only generic types, and easier to use as custom encoders/decoders would not be necessary, but raw clipboard access allows web applications with more specific or sophisticated clipboard support needs to meet those needs.
@@ -209,7 +209,7 @@ The [Clipboard spec](https://w3c.github.io/clipboard-apis/#clipboard-permissions
 
 ## Stakeholder Feedback / Opposition
 
-Stakeholders like Figma and SketchUp are in public support of this feature, and Figma has publicly [requested](https://crbug.com/150835#c73) this, to help attain compatibility and parity with native applications. 
+Stakeholders like Figma, Photopea, and SketchUp are public partners for this feature, to help attain compatibility and parity with native applications. For example, here's a [public request from Figma](https://crbug.com/150835#c73).
 
 WebKit is [not in support of](https://github.com/dway123/raw-clipboard-access/issues/3#issuecomment-521016571) this feature.
 
