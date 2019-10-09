@@ -20,7 +20,8 @@ The existing Async Clipboard API’s re-encoding is still encouraged for use cas
 
 *   Allow copy/paste between web and native apps.
     *   These types will not be sanitized by the browser.
-    *   They must be placed on the operating system clipboard (not pickled), to allow for communication between web and native apps.
+    *   These types must be placed on the operating system clipboard, to allow for communication between web and native apps.
+    *   It must be feasible to adopt such support in a reasonable time frame.
 *   Provide fine-grained control over the clipboard, by allowing the web to:
     *   Skip decoding on write by user agent.
     *   Skip encoding on read by user agent.
@@ -29,7 +30,7 @@ The existing Async Clipboard API’s re-encoding is still encouraged for use cas
 *   Build on existing Async Clipboard API, by leveraging existing:
     *   structure, like ClipboardItem.
     *   async nature, permissions model, and secure-context/active frame requirement of the API.
-*   Preserve security / privacy, as unsanitized data entering the operating system clipboard may be dangerous.
+*   Preserve security / privacy, as unsanitized data interacting with the operating system clipboard may be dangerous.
 
 ## Non-goals
 
@@ -179,13 +180,11 @@ As with the Async Clipboard API, which Raw Clipboard Access builds upon, Raw Cli
 The user agent could alternatively pass a Clipboard type through to the operating system, with a requirement that the Clipboard type be a MIME type with a consistent representation across platforms. As no operating system should have built in Clipboard types in MIME format, native and web applications may converge to using these formats.
 
 * (+) This requires native applications to explicitly “opt in” to using these types, as they will have to potentially add support for these clipboard formats. Therefore, legacy formats not intended for the web - leaking PII or containing decoder vulnerabilities - will not be exposed.
-* (+) This does not requiring platform-dependent branching/code in the web, and therefore also avoids needing navigator.clipboard.platform.
-* (-) This approach ultimately wouldn’t meet goals of interoperability between native and web application clipboard data, because web applications would have to wait for native applications to update and add support for MIME types on the clipboard. As some native applications have very slow update cycles (often >1 year), and existing native applications are often not updated, this would cause for adoption of this API to be unnecessarily slow and expensive. 
-* (-) Some native applications may have no desire to update in order to integrate with web applications, and may therefore choose to omit clipboard MIME type support for this purpose.
-* (-) This provides minimal new capability for the web platform, as opt-in information passing is already possible by embedding such data in text/plain, or the unstandardized pickling format that Chrome and Webkit already expose (which is already done in the wild).
+* (+) This does not requiring platform-dependent branching/code in the web, and therefore also avoids needing `navigator.clipboard.platform`. This also means reduced complexity in web application code.
+* (-) This approach ultimately wouldn’t meet goals of interoperability between native and web application clipboard data, because web applications would have to wait for native applications to update and add support for MIME types on the clipboard. As some native applications have very slow update cycles (often >1 year), and existing native applications are often not updated, this would cause for adoption of this API to be unnecessarily slow and expensive.
+* (-) This provides minimal new capability for the web platform, as opt-in information passing is already possible by transparently embedding such data in text/plain, or silently doing so through the unstandardized pickling format that Chrome and Webkit already expose (which is already done in the wild).
 
-This was not chosen as it does not meet the interoperability requirements desired for raw clipboard access.
-
+Pickling was not chosen as it does not meet the requirements desired for raw clipboard access. Namely, interoperability between native and web applications could not be assured within a reasonable time-frame through pickling.
 
 ### Alternative: Use a new array type instead of ClipboardItem
 
