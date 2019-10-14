@@ -207,9 +207,10 @@ The [Clipboard spec](https://w3c.github.io/clipboard-apis/#clipboard-permissions
 
 ## Stakeholder Feedback / Opposition
 
-Stakeholders like Figma, Photopea, and SketchUp are public partners for this feature, to help attain compatibility and parity with native applications. For example, here's a [public request from Figma](https://crbug.com/150835#c73).
-
-WebKit is [not in support of](https://github.com/dway123/raw-clipboard-access/issues/3#issuecomment-521016571) this feature.
+- Web application stakeholders like Figma, Photopea, and SketchUp are public partners and in public support for this feature, to help attain compatibility and parity with native applications. For example, here's a [public request from Figma](https://crbug.com/150835#c73).
+- Microsoft is [interested](https://groups.google.com/a/chromium.org/d/msg/blink-dev/rkGWbui8B9A/tCP8zINcDgAJ) [in](https://github.com/mozilla/standards-positions/issues/206#issuecomment-541267486) this feature.
+- WebKit is [not in support of](https://github.com/dway123/raw-clipboard-access/issues/3#issuecomment-521016571) this feature.
+- Mozilla is [not in support of](https://github.com/mozilla/standards-positions/issues/206) this feature.
 
 ## References & acknowledgements
 
