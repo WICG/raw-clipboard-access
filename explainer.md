@@ -152,8 +152,8 @@ Example of this new platform API:
 ```javascript
 if (navigator.clipboard.platform === 'Windows') {
   // Only enter this statement on Windows.
-} else if (navigator.clipboard.platform === 'Mac') {
-  // Only enter this statement on macOS.
+} else if (navigator.clipboard.platform === 'MacOS') {
+  // Only enter this statement on MacOS.
 }
 ...
 ```
