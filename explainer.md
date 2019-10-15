@@ -144,7 +144,7 @@ if(image) // If image was successfully converted, draw it.
 
 ## navigator.clipboard.platform
 
-A new `navigator.clipboard.platform` API can determine the clipboard implementation currently in use, and will feature values like `“Windows”`, `“MacOS”`, `“ChromeOS”`, `“Android”`, `“X11 Linux”`, and `“iOS”`.
+A new `navigator.clipboard.platform` API can determine the clipboard implementation currently in use, and will feature values like `“Windows”`, `“MacOS”`, `“ChromeOS”`, `“Android”`, and `“X11 Linux”`.
 
 The existing `navigator.platform` with regular expression matching could notably also fulfill this clipboard implementation detection, but the feature is known to be potentially [bloated and confusing](http://stackoverflow.com/q/19877924), and would not result in a 1-1 ([or close to 1-1](https://stackoverflow.com/a/19883965/7548103)) mapping between `navigator.platform` and required encoding, so it was proposed to use a new `navigator.clipboard.platform`. Then again, adding yet another method to find a platform may be unnecessary, especially considering that this is a low-level API, and will likely be used in conjunction with Javascript libraries, which may perform this parsing.
 
